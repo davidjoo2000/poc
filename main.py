@@ -27,6 +27,9 @@ def main():
         st.session_state.messages = [
             SystemMessage(content=prompt)
         ]
+    if 'last_input' not in st.session_state:
+        st.session_state.last_input = ''
+
     chat = ChatOpenAI(temperature=0.5)#nem kell api kulcs mert langchain automatikusan kiszedi .env-bol
 
     messages = [
@@ -48,7 +51,8 @@ def main():
 
     user_input = st.text_input("Your question",  key="user_input")
 
-    if user_input:
+    if user_input and user_input != st.session_state.last_input:
+        st.session_state.last_input = user_input
         st.session_state.messages.append(HumanMessage(content=user_input))
         with st.spinner("Thinking"):
             response = chat(st.session_state.messages)
@@ -56,10 +60,10 @@ def main():
 
 
     messages = st.session_state.get('messages',[]) # kiszedjuk a messageket
-    for i, msg in enumerate(messages[1:]):
-        if i % 2 == 1:
+    for i, msg in enumerate(messages):
+        if msg.type == "human":
             message(msg.content,is_user=True, key=str(i)+"_usr")
-        else:
+        elif msg.type == "ai":
             message(msg.content,is_user=False, key=str(i)+"_ai")
     st.write(messages)
 
