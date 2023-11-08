@@ -9,14 +9,14 @@ from langchain.schema import (
     AIMessage
 )
 from PyPDF2 import PdfReader
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter 
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 
-prompt = "I want you to act as an accountant and come up with creative ways to manage finances. You'll need to consider budgeting, investment strategies and risk management when creating a financial plan for your client. In some cases, you may also need to provide advice on taxation laws and regulations in order to help them maximize their profits."
+prompt = "Te az Óbudai egyetem szakértő hallgatói ügyekkel kapcsolatos biztosa vagy a szakdolgozattal kapcsolatosan és a képzéssel kapcsolatban válaszolsz kérdésekre."
 
 def init():
     load_dotenv()
