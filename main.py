@@ -50,7 +50,7 @@ def get_pdf_text(pdf_docs):
 def get_text_chunks(text):
     text_splitter = CharacterTextSplitter(
         separator='\n',
-        chunk_size=9000,
+        chunk_size=4000,
         chunk_overlap=200,
         length_function=len
     )
@@ -79,7 +79,10 @@ def get_conversation_chain(vectorstore):
 def handle_userinput(user_question):
     response = st.session_state.conversation({'question': user_question})
     st.session_state.chat_history = response['chat_history']
-    for i, message in enumerate(st.session_state.chat_history):
+
+    # Display chat history with user's message first in reverse order
+    for i in reversed(range(len(st.session_state.chat_history))):
+        message = st.session_state.chat_history[i]
         if i % 2 == 0:
             st.write(user_template.replace(
                 "{{MSG}}", message.content), unsafe_allow_html=True)
@@ -87,13 +90,12 @@ def handle_userinput(user_question):
             st.write(bot_template.replace(
                 "{{MSG}}", message.content), unsafe_allow_html=True)
 
-
 def main():
 
     init()
 
 
-    st.header("Chat with yout pdfs")
+    st.header("Chat with your own documents")
     user_question = st.text_input("Ask a question about your documents:")
     if user_question:
         handle_userinput(user_question)
@@ -101,7 +103,7 @@ def main():
     with st.sidebar:
         st.subheader("Your documents")
         docs = st.file_uploader(
-            "Upload your PDFs here and click on 'Process'", accept_multiple_files=True)
+            "Upload your files here and click on 'Process'", accept_multiple_files=True)
         if st.button("Process"):
             with st.spinner("Processing"):
                 
