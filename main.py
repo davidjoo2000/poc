@@ -3,6 +3,9 @@ from streamlit_chat import  message
 from dotenv import load_dotenv
 import os
 from langchain.chat_models import ChatOpenAI
+from io import StringIO
+
+
 from langchain.schema import (
     SystemMessage, #first message, elso prompt
     HumanMessage,
@@ -16,7 +19,8 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 
-prompt = "Te az Óbudai egyetem szakértő hallgatói ügyekkel kapcsolatos biztosa vagy a szakdolgozattal kapcsolatosan és a képzéssel kapcsolatban válaszolsz kérdésekre."
+prompt = ""
+
 
 def init():
     load_dotenv()
@@ -45,12 +49,14 @@ def get_pdf_text(pdf_docs):
 
 def get_text_chunks(text):
     text_splitter = CharacterTextSplitter(
-        separator="\n",
-        chunk_size=1000,
+        separator='\n',
+        chunk_size=9000,
         chunk_overlap=200,
         length_function=len
     )
+    st.write(text)
     chunks = text_splitter.split_text(text)
+    
     return chunks
 
 def get_vectorstore(text_chunks):
@@ -94,22 +100,33 @@ def main():
 
     with st.sidebar:
         st.subheader("Your documents")
-        pdf_docs = st.file_uploader(
+        docs = st.file_uploader(
             "Upload your PDFs here and click on 'Process'", accept_multiple_files=True)
         if st.button("Process"):
             with st.spinner("Processing"):
-                # get pdf text
-                raw_text = get_pdf_text(pdf_docs)
+                
+                if docs is not None:
+                    for file in docs:
+                        file_name = file.name
+                        if file_name.split(".")[1]=="txt":
+                            raw_text = StringIO(file.getvalue().decode("utf-8")).read()
+                        else:
+                            raw_text = ""
+                            pdf_reader = PdfReader(file)
+                            for page in pdf_reader.pages:
+                                raw_text += page.extract_text()
 
-                # get the text chunks
-                text_chunks = get_text_chunks(raw_text)
+                    # get pdf text
+                    
+                    # get the text chunks
+                    text_chunks = get_text_chunks(raw_text)
 
-                # create vector store
-                vectorstore = get_vectorstore(text_chunks)
+                    # create vector store
+                    vectorstore = get_vectorstore(text_chunks)
 
-                # create conversation chain
-                st.session_state.conversation = get_conversation_chain(
-                    vectorstore)
+                    # create conversation chain
+                    st.session_state.conversation = get_conversation_chain(
+                        vectorstore)
 
 
 if __name__ == "__main__":
