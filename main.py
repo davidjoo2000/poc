@@ -50,8 +50,8 @@ def get_pdf_text(pdf_docs):
 def get_text_chunks(text):
     text_splitter = CharacterTextSplitter(
         separator='\n',
-        chunk_size=4000,
-        chunk_overlap=200,
+        chunk_size=2000,
+        chunk_overlap=140,
         length_function=len
     )
     chunks = text_splitter.split_text(text)
@@ -95,9 +95,12 @@ def main():
 
 
     st.header("Chat with your own documents")
-    user_question = st.text_input("Ask a question about your documents:")
-    if user_question:
-        handle_userinput(user_question)
+    with st.form("Question", clear_on_submit=True):
+        user_question = st.text_input("Ask a question about your documents:")
+        submitted = st.form_submit_button("Submit")
+        if submitted:
+            handle_userinput(user_question)
+    
 
     with st.sidebar:
         st.subheader("Your documents")
