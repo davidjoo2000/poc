@@ -54,7 +54,6 @@ def get_text_chunks(text):
         chunk_overlap=200,
         length_function=len
     )
-    st.write(text)
     chunks = text_splitter.split_text(text)
     
     return chunks
